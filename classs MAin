@@ -1,0 +1,67 @@
+
+
+// Clase principal main
+class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        // cuenta de ahorros
+        System.out.print("ingrese el saldo de la cuenta ahorros: ");
+        float saldo_ahorro = scanner.nextFloat();
+        System.out.print("ingrese la tasa anual: ");
+        float tasa_anual_ahorros = scanner.nextFloat();
+        CuentaAhorros cuentaAhorros = new CuentaAhorros(saldo_ahorro, tasa_anual_ahorros);
+
+        // cuenta corriente
+        System.out.print("ingrese saldo inicial de la cuenta: ");
+        float saldo_corriente = scanner.nextFloat();
+        System.out.print("ingrese tasa anual de la cuenta corriente: ");
+        float tasa_anual_corriente = scanner.nextFloat();
+        CuentaCorriente cuentaCorriente = new CuentaCorriente(saldo_corriente, tasa_anual_corriente);
+
+        // cuenta de ahorros
+        System.out.print("realizar un deposito en la cuenta ahorros¿saldo_ahorro¿? (s/n): ");
+        if (scanner.next().equalsIgnoreCase("s")) {
+            System.out.print("ingrese la cantidad del deposito: ");
+            float deposito_ahorros = scanner.nextFloat();
+            cuentaAhorros.deposito(deposito_ahorros);
+        }
+
+        System.out.print("realizar un retiro de la cuenta de ahorros¿? (s/n): ");
+        if (scanner.next().equalsIgnoreCase("s")) {
+            System.out.print("Iingrese cantidad a retirar: ");
+            float retiro_ahorros = scanner.nextFloat();
+            if (!cuentaAhorros.retiro(retiro_ahorros)) {
+                System.out.println("el retiro no se pudo realizar.");
+            }
+        }
+
+        // la cuenta corriente
+        System.out.print("realizar deposito en cuanta corriente¿? (s/n): ");
+        if (scanner.next().equalsIgnoreCase("s")) {
+            System.out.print("ingrese la cantidad del deposito: ");
+            float deposito_corriente= scanner.nextFloat();
+            cuentaCorriente.deposito(deposito_corriente);
+        }
+
+        System.out.print("realizar un retiro de la ceunta corriente¿? (s/n): ");
+        if (scanner.next().equalsIgnoreCase("s")) {
+            System.out.print("ingrese la cantidad del retiro: ");
+            float retiro_corriente = scanner.nextFloat();
+            if (!cuentaCorriente.retiro(retiro_corriente)) {
+                System.out.println("retiro no realizado.");
+            }
+        }
+
+        //extracto mensual
+        cuentaAhorros.extracto();
+        cuentaCorriente.extracto();
+
+        //estados de las cuentas
+        System.out.println("\nESTADO DE LA CUENTA DE AHORROS:");
+        cuentaAhorros.imprimir();
+
+        System.out.println("\nESTADO DE LA CUENTA DE CORRIENTE:");
+        cuentaCorriente.imprimir();
+    }
+}
