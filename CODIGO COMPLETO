@@ -1,0 +1,235 @@
+//PRUEBA PRIMER PARCIAL -- LENGUAJE DE PROGRAMACION 2
+//programador: Cristian A. Villacis Mendoza -- Jordan Sangucho
+//desarrolar un progrma de una cuenta bancaria que tenga los siguientes atributos que tiene que ser de acceso protegido
+
+import javax.swing.plaf.synth.SynthOptionPaneUI;
+import java.util.Scanner;
+
+// Clase base Cuenta
+class CuentaBancaria {
+    protected float saldo;  //saldo tipo float
+    protected int depositos; //numero de consignaciones con valor inicial 0 de tipo entero
+    protected int retiros;  //n de retiros con valor inicial 0 de tipo entero
+    protected float tasa_anual; //taza anual porcentaje de tipo float
+    protected float comision_mensual; //comision mensual con valor inicial 0 de tipo float
+
+    //constructor
+
+   //la cuenta tiene un constructor que inicializa los atribtos saldo y taza anual con valores pasados, parametros
+    //la clase cuenta tiene los siguientes metodos.
+    public CuentaBancaria(float saldo, float tasa_anual) {
+        this.saldo = saldo;
+        this.tasa_anual = tasa_anual;
+        this.depositos = 0;
+        this.retiros = 0;
+        this.comision_mensual = 0;
+    }
+
+    //depositar dinero en la cuenta
+    //depositar una cantidad de dinero en la cuenta actualizando el saldo
+    public void deposito(float cantidad) {
+        saldo += cantidad;
+        depositos++;
+    }
+
+    //dinero de la cuenta
+    //retirar una cantidad de la cuenta utilizando su saldo, el valor a retirar no debe superar el saldo
+    public boolean retiro(float cantidad) {
+        if (cantidad <= saldo) {
+            saldo -= cantidad;
+            retiros++;
+            return true;
+        }
+        return false;
+    }
+
+    //interés mensual
+    public void calcular_im() {
+        float interes_mensual = (saldo * tasa_anual) / 100 / 12;
+        saldo += interes_mensual;
+    }
+
+    //extracto mensual
+    public void extracto() {
+        calcular_im();
+        saldo -= comision_mensual;
+    }
+
+    // imprimir los datos
+    public void imprimir() {
+        System.out.println("Saldo: $" + saldo);
+        System.out.println("Comision : $" + comision_mensual);
+        System.out.println("Transacciones : " + (depositos + retiros));
+    }
+}
+
+//CuentaAhorros
+class CuentaAhorros extends CuentaBancaria {
+    private boolean ACTIVA;
+
+    // Constructor
+    public CuentaAhorros(float saldo, float tasa_anual) {
+        super(saldo, tasa_anual);
+        this.ACTIVA = saldo >= 100; //aqui
+    }
+
+    // depositar dinero, si la cuenta esta ACTIVA
+    @Override
+    public void deposito(float cantidad) {
+        if (ACTIVA) {
+            super.deposito(cantidad);
+        } else {
+            System.out.println("no se puede depositar por que la cuenta esta inactiva.");
+        }
+    }
+
+    //retirar dinero, si la cuenta esta activa
+    @Override
+    public boolean retiro(float cantidad) {
+        if (ACTIVA) {
+            return super.retiro(cantidad);
+        } else {
+            System.out.println("no se puede depositar por que la cuenta esta inactiva.");
+            return false;
+        }
+    }
+
+    //extracto mensual con penalización por retiros adicionales
+    @Override
+    public void extracto() {
+        super.extracto();
+        if (retiros > 4) {
+            comision_mensual += (retiros - 4);
+        }
+        if (saldo < 100) {
+            ACTIVA = false; // La cuenta se vuelve inactiva si el saldo es menor a 100
+        }
+    }
+
+    //imprimir los datos de la cuenta de ahorros
+    @Override
+    public void imprimir() {
+        super.imprimir();
+        System.out.println("Estado de la cuenta: " + (ACTIVA ? "activa" : "inactiva"));
+    }
+}
+
+// CCuentaCorriente
+class CuentaCorriente extends CuentaBancaria {
+    private float sobregiro;
+
+    // Constructor de la cuenta corriente
+    public CuentaCorriente(float saldo, float tasa_anual) {
+        super(saldo, tasa_anual);
+        this.sobregiro = 0;
+    }
+
+    // retirar dinero permitiendo sobregiro
+    @Override
+    public boolean retiro(float cantidad) {
+        if (cantidad <= saldo + sobregiro) {
+            if (cantidad > saldo) {
+                sobregiro += (cantidad - saldo); // Si el retiro supera el saldo, se utiliza el sobregiro
+                saldo = 0;
+            } else {
+                saldo -= cantidad;
+            }
+            retiros++;
+            return true;
+        }
+        return false;
+    }
+
+    //depositar dinero si hay sobregiro se reduce primero
+    @Override
+    public void deposito(float cantidad) {
+        super.deposito(cantidad);
+        if (sobregiro > 0) {
+            if (cantidad >= sobregiro) {
+                cantidad -= sobregiro;
+                sobregiro = 0;
+            } else {
+                sobregiro -= cantidad;
+            }
+        }
+    }
+
+    //extracto mensual
+    @Override
+    public void extracto() {
+        super.extracto();
+    }
+
+    // imprimir los datos de la cuenta corriente
+    @Override
+    public void imprimir() {
+        super.imprimir();
+        System.out.println("Sobregiro: $" + sobregiro);
+    }
+}
+
+// Clase principal main
+class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        // cuenta de ahorros
+        System.out.print("ingrese el saldo de la cuenta ahorros: ");
+        float saldo_ahorro = scanner.nextFloat();
+        System.out.print("ingrese la tasa anual: ");
+        float tasa_anual_ahorros = scanner.nextFloat();
+        CuentaAhorros cuentaAhorros = new CuentaAhorros(saldo_ahorro, tasa_anual_ahorros);
+
+        // cuenta corriente
+        System.out.print("ingrese saldo inicial de la cuenta: ");
+        float saldo_corriente = scanner.nextFloat();
+        System.out.print("ingrese tasa anual de la cuenta corriente: ");
+        float tasa_anual_corriente = scanner.nextFloat();
+        CuentaCorriente cuentaCorriente = new CuentaCorriente(saldo_corriente, tasa_anual_corriente);
+
+        // cuenta de ahorros
+        System.out.print("realizar un deposito en la cuenta ahorros¿saldo_ahorro¿? (s/n): ");
+        if (scanner.next().equalsIgnoreCase("s")) {
+            System.out.print("ingrese la cantidad del deposito: ");
+            float deposito_ahorros = scanner.nextFloat();
+            cuentaAhorros.deposito(deposito_ahorros);
+        }
+
+        System.out.print("realizar un retiro de la cuenta de ahorros¿? (s/n): ");
+        if (scanner.next().equalsIgnoreCase("s")) {
+            System.out.print("Iingrese cantidad a retirar: ");
+            float retiro_ahorros = scanner.nextFloat();
+            if (!cuentaAhorros.retiro(retiro_ahorros)) {
+                System.out.println("el retiro no se pudo realizar.");
+            }
+        }
+
+        // la cuenta corriente
+        System.out.print("realizar deposito en cuanta corriente¿? (s/n): ");
+        if (scanner.next().equalsIgnoreCase("s")) {
+            System.out.print("ingrese la cantidad del deposito: ");
+            float deposito_corriente= scanner.nextFloat();
+            cuentaCorriente.deposito(deposito_corriente);
+        }
+
+        System.out.print("realizar un retiro de la ceunta corriente¿? (s/n): ");
+        if (scanner.next().equalsIgnoreCase("s")) {
+            System.out.print("ingrese la cantidad del retiro: ");
+            float retiro_corriente = scanner.nextFloat();
+            if (!cuentaCorriente.retiro(retiro_corriente)) {
+                System.out.println("retiro no realizado.");
+            }
+        }
+
+        //extracto mensual
+        cuentaAhorros.extracto();
+        cuentaCorriente.extracto();
+
+        //estados de las cuentas
+        System.out.println("\nESTADO DE LA CUENTA DE AHORROS:");
+        cuentaAhorros.imprimir();
+
+        System.out.println("\nESTADO DE LA CUENTA DE CORRIENTE:");
+        cuentaCorriente.imprimir();
+    }
+}
