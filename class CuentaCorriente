@@ -1,0 +1,56 @@
+
+// CCuentaCorriente
+class CuentaCorriente extends CuentaBancaria {
+    private float sobregiro;
+
+    // Constructor de la cuenta corriente
+    public CuentaCorriente(float saldo, float tasa_anual) {
+        super(saldo, tasa_anual);
+        this.sobregiro = 0;
+    }
+
+    // retirar dinero permitiendo sobregiro
+    @Override
+    public boolean retiro(float cantidad) {
+        if (cantidad <= saldo + sobregiro) {
+            if (cantidad > saldo) {
+                sobregiro += (cantidad - saldo); // Si el retiro supera el saldo, se utiliza el sobregiro
+                saldo = 0;
+            } else {
+                saldo -= cantidad;
+            }
+            retiros++;
+            return true;
+        }
+        return false;
+    }
+
+    //depositar dinero si hay sobregiro se reduce primero
+    @Override
+    public void deposito(float cantidad) {
+        super.deposito(cantidad);
+        if (sobregiro > 0) {
+            if (cantidad >= sobregiro) {
+                cantidad -= sobregiro;
+                sobregiro = 0;
+            } else {
+                sobregiro -= cantidad;
+            }
+        }
+    }
+
+    //extracto mensual
+    @Override
+    public void extracto() {
+        super.extracto();
+    }
+
+    // imprimir los datos de la cuenta corriente
+    @Override
+    public void imprimir() {
+        super.imprimir();
+        System.out.println("Sobregiro: $" + sobregiro);
+    }
+}
+
+
