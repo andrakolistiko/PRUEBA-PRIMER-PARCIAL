@@ -1,0 +1,52 @@
+
+//CuentaAhorros
+class CuentaAhorros extends CuentaBancaria {
+    private boolean ACTIVA;
+
+    // Constructor
+    public CuentaAhorros(float saldo, float tasa_anual) {
+        super(saldo, tasa_anual);
+        this.ACTIVA = saldo >= 100; //aqui
+    }
+
+    // depositar dinero, si la cuenta esta ACTIVA
+    @Override
+    public void deposito(float cantidad) {
+        if (ACTIVA) {
+            super.deposito(cantidad);
+        } else {
+            System.out.println("no se puede depositar por que la cuenta esta inactiva.");
+        }
+    }
+
+    //retirar dinero, si la cuenta esta activa
+    @Override
+    public boolean retiro(float cantidad) {
+        if (ACTIVA) {
+            return super.retiro(cantidad);
+        } else {
+            System.out.println("no se puede depositar por que la cuenta esta inactiva.");
+            return false;
+        }
+    }
+
+    //extracto mensual con penalización por retiros adicionales
+    @Override
+    public void extracto() {
+        super.extracto();
+        if (retiros > 4) {
+            comision_mensual += (retiros - 4);
+        }
+        if (saldo < 100) {
+            ACTIVA = false; // La cuenta se vuelve inactiva si el saldo es menor a 100
+        }
+    }
+
+    //imprimir los datos de la cuenta de ahorros
+    @Override
+    public void imprimir() {
+        super.imprimir();
+        System.out.println("Estado de la cuenta: " + (ACTIVA ? "activa" : "inactiva"));
+    }
+}
+
